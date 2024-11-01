@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LoL Champion Viewer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #0A1428;
+            color: #C8AA6E;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .search-container {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        #searchBar {
+            width: 80%;
+            max-width: 600px;
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid #C8AA6E;
+            background: #1E2328;
+            color: #C8AA6E;
+            border-radius: 25px;
+            margin-bottom: 20px;
+        }
+
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .role-filter {
+            padding: 10px 20px;
+            background: #1E2328;
+            border: 2px solid #C8AA6E;
+            color: #C8AA6E;
+            cursor: pointer;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .role-filter.active {
+            background: #C8AA6E;
+            color: #1E2328;
+        }
+
+        .carousel {
+            position: relative;
+            width: 100%;
+            min-height: 500px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .champion-card {
+            position: relative;
+            width: 300px;
+            height: 450px;
+            background: #1E2328;
+            border: 2px solid #C8AA6E;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .champion-card:hover {
+            transform: scale(1.05);
+        }
+
+        .champion-image {
+            width: 100%;
+            height: 70%;
+            background-size: cover;
+            background-position: center;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .champion-info {
+            padding: 15px;
+            text-align: center;
+        }
+
+        .champion-name {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .champion-title {
+            font-size: 16px;
+            color: #937341;
+        }
+
+        .champion-role {
+            font-size: 14px;
+            color: #C8AA6E;
+            margin-top: 5px;
+        }
+
+        .dropdown {
+            display: none;
+            position: absolute;
+            left: 0;
+            width: 100%;
+            background: #1E2328;
+            border: 2px solid #C8AA6E;
+            border-radius: 0 0 10px 10px;
+            z-index: 10;
+            padding: 20px;
+          margin-bottom: 1000px;
+        
+        }
+
+        .ability {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-bottom: 1px solid #937341;
+        }
+
+        .ability-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="search-container">
+            <input type="text" id="searchBar" placeholder="Search champions...">
+            <div class="filter-container">
+                <button class="role-filter active" data-role="all">All</button>
+                <button class="role-filter" data-role="Assassin">Assassin</button>
+                <button class="role-filter" data-role="Fighter">Fighter</button>
+                <button class="role-filter" data-role="Mage">Mage</button>
+                <button class="role-filter" data-role="Marksman">Marksman</button>
+                <button class="role-filter" data-role="Support">Support</button>
+                <button class="role-filter" data-role="Tank">Tank</button>
+            </div>
+        </div>
+        <div class="carousel"></div>
+    </div>
+
+    <div class="secondary-container">
+        <div class="divisions"></div>
+
+
+
+
+
+
+
+
+
+    </div>
+
+    <script>
+        // Expanded champion data
+        const champions = [
+            {
+                name: "Ahri",
+                title: "the Nine-Tailed Fox",
+                roles: ["Mage", "Assassin"],
+                image: "/api/placeholder/300/315",
+                abilities: {
+                    passive: "Essence Theft",
+                    q: "Orb of Deception",
+                    w: "Fox-Fire",
+                    e: "Charm",
+                    r: "Spirit Rush"
+                },
+                stats: {
+                    health: 570,
+                    mana: 418,
+                    armor: 21,
+                    magicResist: 30
+                }
+            },
+            {
+                name: "Jinx",
+                title: "the Loose Cannon",
+                roles: ["Marksman"],
+                image: "/api/placeholder/300/315",
+                abilities: {
+                    passive: "Get Excited!",
+                    q: "Switcheroo!",
+                    w: "Zap!",
+                    e: "Flame Chompers!",
+                    r: "Super Mega Death Rocket!"
+                },
+                stats: {
+                    health: 610,
+                    mana: 245,
+                    armor: 28,
+                    magicResist: 30
+                }
+            },
+            {
+                name: "Leona",
+                title: "the Radiant Dawn",
+                roles: ["Tank", "Support"],
+                image: "/api/placeholder/300/315",
+                abilities: {
+                    passive: "Sunlight",
+                    q: "Shield of Daybreak",
+                    w: "Eclipse",
+                    e: "Zenith Blade",
+                    r: "Solar Flare"
+                },
+                stats: {
+                    health: 680,
+                    mana: 302,
+                    armor: 47,
+                    magicResist: 32
+                }
+            },
+            {
+                name: "Yasuo",
+                title: "the Unforgiven",
+                roles: ["Fighter", "Assassin"],
+                image: "/api/placeholder/300/315",
+                abilities: {
+                    passive: "Way of the Wanderer",
+                    q: "Steel Tempest",
+                    w: "Wind Wall",
+                    e: "Sweeping Blade",
+                    r: "Last Breath"
+                },
+                stats: {
+                    health: 590,
+                    mana: 0,
+                    armor: 30,
+                    magicResist: 32
+                }
+            },
+            {
+                name: "Lux",
+                title: "the Lady of Luminosity",
+                roles: ["Mage", "Support"],
+                image: "/api/placeholder/300/315",
+                abilities: {
+                    passive: "Illumination",
+                    q: "Light Binding",
+                    w: "Prismatic Barrier",
+                    e: "Lucent Singularity",
+                    r: "Final Spark"
+                },
+                stats: {
+                    health: 560,
+                    mana: 480,
+                    armor: 19,
+                    magicResist: 30
+                }
+            },
+            {
+                name: "Darius",
+                title: "the Hand of Noxus",
+                roles: ["Fighter", "Tank"],
+                image: "/api/placeholder/300/315",
+                abilities: {
+                    passive: "Hemorrhage",
+                    q: "Decimate",
+                    w: "Crippling Strike",
+                    e: "Apprehend",
+                    r: "Noxian Guillotine"
+                },
+                stats: {
+                    health: 682,
+                    mana: 263,
+                    armor: 39,
+                    magicResist: 32
+                }
+            }
+        ];
+
+        function createChampionCard(champion) {
+            return `
+                <div class="champion-card" data-roles='${JSON.stringify(champion.roles)}'>
+                    <div class="champion-image" style="background-image: url('${champion.image}')"></div>
+                    <div class="champion-info">
+                        <div class="champion-name">${champion.name}</div>
+                        <div class="champion-title">${champion.title}</div>
+                        <div class="champion-role">${champion.roles.join(' / ')}</div>
+                    </div>
+                    <div class="dropdown">
+                        <h3>Abilities:</h3>
+                        ${Object.entries(champion.abilities).map(([key, value]) => `
+                            <div class="ability">
+                                <div class="ability-name">${key.toUpperCase()}: ${value}</div>
+                            </div>
+                        `).join('')}
+                        <h3>Stats:</h3>
+                        ${Object.entries(champion.stats).map(([key, value]) => `
+                            <div class="ability">
+                                <div class="ability-name">${key}: ${value}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function filterChampions() {
+            const searchTerm = document.getElementById('searchBar').value.toLowerCase();
+            const activeRole = document.querySelector('.role-filter.active').dataset.role;
+            
+            const filteredChampions = champions.filter(champion => {
+                const nameMatch = champion.name.toLowerCase().includes(searchTerm);
+                const roleMatch = activeRole === 'all' || champion.roles.includes(activeRole);
+                return nameMatch && roleMatch;
+            });
+            
+            displayChampions(filteredChampions);
+        }
+
+        function displayChampions(championsList) {
+            const carousel = document.querySelector('.carousel');
+            carousel.innerHTML = '';
+            championsList.forEach(champion => {
+                carousel.innerHTML += createChampionCard(champion);
+            });
+        }
+
+        // Initial display
+        displayChampions(champions);
+
+        // Search functionality
+        document.getElementById('searchBar').addEventListener('input', filterChampions);
+
+        // Role filter functionality
+        document.querySelectorAll('.role-filter').forEach(button => {
+            button.addEventListener('click', (e) => {
+                document.querySelectorAll('.role-filter').forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+                filterChampions();
+            });
+        });
+
+        // Toggle dropdown
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.champion-card')) {
+                const card = e.target.closest('.champion-card');
+                const dropdown = card.querySelector('.dropdown');
+                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+            }
+        });
+    </script>
+</body>
+</html>
